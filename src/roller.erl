@@ -1,20 +1,20 @@
--module(roller, [Request, Env, Chain, Error]).
+-module(roller, [Request, Env, Error]).
 
--export([new/3, new/4]).
--export([roll/1]).
+-export([new/2, new/3]).
+-export([roll/2]).
 
-new(Request, Env, Chain, Error)->
-    instance(Request, Env, Chain, Error).
-new(Request, Env, Chain)->
+new(Request, Env, Error)->
+    instance(Request, Env, Error).
+new(Request, Env)->
     Err = fun(Code, Reason)-> 
                   {Code, 
                    [<<"Content-Type">>,<<"text/plain; charset=utf-8">>], 
                    mochifmt:bformat("{0}\n{1}", [Code, Reason])}
           end,
-    instance(Request, Env, Chain, Err).
+    instance(Request, Env, Err).
 
 
-roll(Args)->
+roll(Args, Chain)->
     do(Args, Chain).
 
 do(Args, [])->
@@ -27,13 +27,15 @@ do(Args, [])->
    end;
 
 do(Args, [Current|Rest])->
-    try Current:do(Args) of
+    Handler = Current:new(Request, Env),
+    try Handler:do(Args) of
         stop -> ok;
         Ret -> do(Ret, Rest)
     catch
         Class:Err->
-            Nexus = integer_to_list(length(Chain) - length(Rest)),
-            send_error(500, {"Error on nexus " ++ Nexus, {Class, Err}})
+            Rem = integer_to_list(length(Rest)),
+            send_error(500, {"Error. " ++ Rem ++ " steps left.", 
+                             {Class, Err}})
     end.
 
 send_error(Code, Reason)->
