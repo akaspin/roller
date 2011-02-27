@@ -1,0 +1,6 @@
+%% -*- erlang -*-
+{application, roller,
+ [{description, "Roller for mochiweb"},
+  {vsn, "0.1"},
+  {modules, []},
+  {applications, [kernel, stdlib]}]}.

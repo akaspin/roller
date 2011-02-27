@@ -1,0 +1,7 @@
+/.settings
+/ebin*
+/.project
+/erl_crash.dump
+/deps
+/TEST*
+/rebar
