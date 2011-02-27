@@ -16,9 +16,9 @@ new(Request)->
 
 
 roll(Args, Chain)->
-    do(Args, Chain).
+    do(Args, Chain, 0).
 
-do(Args, [])->
+do(Args, [], _)->
     case Args of
         ok -> 
             ok;
@@ -27,20 +27,26 @@ do(Args, [])->
             send_error(500, {"Non ended chain", NonClosed}, "Error")
     end;
 
-do(Args, [Current|Rest])->
+do(Args, [Current|Rest], Step)->
     Handler = Current:new(Request),
     try Handler:do(Args) of
         ok -> ok;
-        Ret -> do(Ret, Rest)
+        Ret -> do(Ret, Rest, Step+1)
     catch
-        Class:{Code, Reason} when is_integer(Code)->
-            send_error(Code, Reason, Class);
-        Class:Err->
-            Rem = integer_to_list(length(Rest)),
-            Mod = atom_to_list(Current),
-            send_error(500, {"Error in '" ++ Mod ++ "'. " ++ 
-            Rem ++ " steps left.", Err}, Class)
+        throw:{Code, Reason} when is_integer(Code)->
+            send_error(Code, make_step_error(Step, Current, Reason), throw);
+        throw:Reason -> 
+            send_error(500, make_step_error(Step, Current, Reason), throw);
+        exit:Reason -> 
+            send_error(500, make_step_error(Step, Current, Reason), 'EXIT');
+        error:Reason->
+            send_error(500, make_step_error(Step, Current, 
+                [Reason]++erlang:get_stacktrace()), 'EXIT')
     end.
+
+make_step_error(Step, Current, Reason)->
+    mochifmt:bformat("Error on step {0} in {1}:\n{2}", 
+                     [Step, Current, Reason]).
 
 send_error(Code, Reason, Class)->
     error_logger:error_report(["Roller flow error", {class, Class},
