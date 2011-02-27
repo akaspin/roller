@@ -16,9 +16,21 @@ new(Request)->
 
 
 roll(Args, Chain)->
-    do(Args, Chain, 0).
+    try
+        do(Args, Chain)
+    catch
+        throw:{Code, Reason} when is_integer(Code)->
+            send_error(Code, Reason, throw);
+        throw:Reason -> 
+            send_error(500, Reason, throw);
+        exit:Reason -> 
+            send_error(500, Reason, 'EXIT');
+        error:Reason->
+            send_error(500, 
+                {Reason,erlang:get_stacktrace()}, error)
+    end.
 
-do(Args, [], _)->
+do(Args, [])->
     case Args of
         ok -> 
             ok;
@@ -27,27 +39,12 @@ do(Args, [], _)->
             send_error(500, {"Non ended chain", NonClosed}, "Error")
     end;
 
-do(Args, [Current|Rest], Step)->
+do(Args, [Current|Rest])->
     Handler = Current:new(Request),
-    try Handler:do(Args) of
+    case Handler:do(Args) of
         ok -> ok;
-        Ret -> do(Ret, Rest, Step+1)
-    catch
-        throw:{Code, Reason} when is_integer(Code)->
-            send_error(Code, {make_step_error(Step, Current), Reason}, throw);
-        throw:Reason -> 
-            send_error(500, {make_step_error(Step, Current), Reason}, throw);
-        exit:Reason -> 
-            send_error(500, {make_step_error(Step, Current), Reason}, 'EXIT');
-        error:Reason->
-            send_error(500, {make_step_error(Step, Current), 
-                lists:append([Reason],erlang:get_stacktrace())}, error)
+        Ret -> do(Ret, Rest)
     end.
-
-make_step_error(Step, Current)->
-    N = integer_to_list(Step),
-    Mod = atom_to_list(Current),
-    "Error on step "++N++" in '"++Mod++"'.".
 
 send_error(Code, Reason, Class)->
     error_logger:error_report(["Roller flow error", {class, Class},
