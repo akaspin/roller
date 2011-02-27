@@ -1,17 +1,17 @@
--module(roller, [Request, Env, Error]).
+-module(roller, [Request, Error]).
 
--export([new/2, new/3]).
+-export([new/1, new/2]).
 -export([roll/2]).
 
-new(Request, Env, Error)->
-    instance(Request, Env, Error).
-new(Request, Env)->
+new(Request, Error)->
+    instance(Request, Error).
+new(Request)->
     Err = fun(Code, Reason)-> 
                   {Code, 
                    [<<"Content-Type">>,<<"text/plain; charset=utf-8">>], 
                    mochifmt:bformat("{0}\n{1}", [Code, Reason])}
           end,
-    instance(Request, Env, Err).
+    instance(Request, Err).
 
 
 roll(Args, Chain)->
@@ -27,7 +27,7 @@ do(Args, [])->
    end;
 
 do(Args, [Current|Rest])->
-    Handler = Current:new(Request, Env),
+    Handler = Current:new(Request),
     try Handler:do(Args) of
         stop -> ok;
         Ret -> do(Ret, Rest)
