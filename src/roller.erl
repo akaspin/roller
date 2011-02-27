@@ -1,42 +1,45 @@
--module(roller, [Request, Error]).
+-module(roller, [Error]).
 
--export([new/1, new/2]).
--export([roll/2]).
+-export([new/0, new/1]).
+-export([roll/3]).
 
-new(Request, Error)->
-    instance(Request, Error).
-new(Request)->
+new(Error)->
+    instance(Error).
+new()->
     Err = fun(Code, Reason)-> 
                   {Code, 
                    [<<"Content-Type">>,<<"text/plain; charset=utf-8">>], 
                    mochifmt:bformat("{0}\n{1}", [Code, Reason])}
           end,
-    instance(Request, Err).
+    instance(Err).
 
 
-roll(Args, Chain)->
-    do(Args, Chain).
+roll(Request, Args, Chain)->
+    do(Request, Args, Chain).
 
-do(Args, [])->
+do(Request, Args, [])->
    case Args of
        ok -> 
            ok;
        Err -> 
            % Some wrong here
-           send_error(500, {"End of chain", Err})
+           send_error(Request, 500, {"End of chain", Err})
    end;
 
-do(Args, [Current|Rest])->
+do(Request, Args, [Current|Rest])->
     Handler = Current:new(Request),
     try Handler:do(Args) of
         ok -> ok;
-        Ret -> do(Ret, Rest)
+        Ret -> do(Request, Ret, Rest)
     catch
+        error:{Code, Reason}->
+            send_error(Request, Code, Reason);
+            
         Class:Err->
             Rem = integer_to_list(length(Rest)),
-            send_error(500, {"Error. " ++ Rem ++ " steps left.", 
-                             {Class, Err}})
+            send_error(Request, 500, 
+                       {"Error. " ++ Rem ++ " steps left.", {Class, Err}})
     end.
 
-send_error(Code, Reason)->
+send_error(Request, Code, Reason)->
     Request:respond(Error(Code, Reason)).

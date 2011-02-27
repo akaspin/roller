@@ -21,7 +21,7 @@ roll.erl
 
     ...
     Chain = [first, second],
-    Roller = roller:new(Request),
+    Roller = roller:new(),
     ...
     % in loop fun...
-        Roller:roll("Arg", Chain).
+        Roller:roll(Request, "Arg", Chain).
