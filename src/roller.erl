@@ -35,10 +35,11 @@ do(Args, [Current|Rest])->
     catch
         Class:{Code, Reason} when is_integer(Code)->
             send_error(Code, Reason, Class);
-            
         Class:Err->
             Rem = integer_to_list(length(Rest)),
-            send_error(500, {"Error. " ++ Rem ++ " steps left.", Err}, Class)
+            Mod = atom_to_list(Current),
+            send_error(500, {"Error in '" ++ Mod ++ "'. " ++ 
+            Rem ++ " steps left.", Err}, Class)
     end.
 
 send_error(Code, Reason, Class)->
