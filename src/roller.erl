@@ -9,7 +9,7 @@ new(Request)->
     Err = fun(Code, Reason, Class)-> 
                   {Code, 
                    [{<<"Content-Type">>,<<"text/plain; charset=utf-8">>}], 
-                   mochifmt:bformat(
+                   mochifmt:format(
                     "{0} ({1}): {2}", [Code, Class, Reason])}
           end,
     instance(Request, Err).
@@ -34,19 +34,20 @@ do(Args, [Current|Rest], Step)->
         Ret -> do(Ret, Rest, Step+1)
     catch
         throw:{Code, Reason} when is_integer(Code)->
-            send_error(Code, make_step_error(Step, Current, Reason), throw);
+            send_error(Code, {make_step_error(Step, Current), Reason}, throw);
         throw:Reason -> 
-            send_error(500, make_step_error(Step, Current, Reason), throw);
+            send_error(500, {make_step_error(Step, Current), Reason}, throw);
         exit:Reason -> 
-            send_error(500, make_step_error(Step, Current, Reason), 'EXIT');
+            send_error(500, {make_step_error(Step, Current), Reason}, 'EXIT');
         error:Reason->
-            send_error(500, make_step_error(Step, Current, 
-                [Reason]++erlang:get_stacktrace()), 'EXIT')
+            send_error(500, {make_step_error(Step, Current), 
+                lists:append([Reason],erlang:get_stacktrace())}, error)
     end.
 
-make_step_error(Step, Current, Reason)->
-    mochifmt:bformat("Error on step {0} in {1}:\n{2}", 
-                     [Step, Current, Reason]).
+make_step_error(Step, Current)->
+    N = integer_to_list(Step),
+    Mod = atom_to_list(Current),
+    "Error on step "++N++" in '"++Mod++"'.".
 
 send_error(Code, Reason, Class)->
     error_logger:error_report(["Roller flow error", {class, Class},
