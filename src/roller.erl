@@ -19,7 +19,7 @@ roll(Args, Chain)->
 
 do(Args, [])->
    case Args of
-       stop -> 
+       ok -> 
            ok;
        Err -> 
            % Some wrong here
@@ -29,7 +29,7 @@ do(Args, [])->
 do(Args, [Current|Rest])->
     Handler = Current:new(Request),
     try Handler:do(Args) of
-        stop -> ok;
+        ok -> ok;
         Ret -> do(Ret, Rest)
     catch
         Class:Err->
