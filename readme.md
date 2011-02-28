@@ -6,7 +6,7 @@
 ## Design
 
 *roller* is based on ideas of [kaph](https://github.com/akaspin/kaph). Request 
-divides into separate operations. 
+divides into chain of separate operations. 
 
 first.erl
     
@@ -38,4 +38,5 @@ roll.erl
                 [first, second]).
     ...
 
-Each operation is parameterized module that contains a clause `do/1`. 
+Each operation is parameterized module that contains a clause `do/1`. Result 
+of 
