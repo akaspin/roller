@@ -2,7 +2,7 @@
 
 first.erl
     
-    -module(second, [Request]).
+    -module(first, [Request]).
     -export([do/1]).
     
     do(arg)->
