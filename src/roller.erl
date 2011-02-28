@@ -13,7 +13,7 @@ new(Request)->
           end,
     instance(Request, Err).
 
-
+-spec roll(any(), [atom()]) -> ok.
 roll(Args, Chain)->
     try
         do(Args, Chain)
@@ -32,10 +32,10 @@ roll(Args, Chain)->
 do(Args, [])->
     case Args of
         finish -> 
-            finish;
+            ok;
         NonClosed -> 
             % Some wrong here
-            send_error(500, {"Non ended chain", NonClosed})
+            throw({500, {"Non ended chain", NonClosed}})
     end;
 
 do(Args, [Current|Rest])->
