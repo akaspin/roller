@@ -6,10 +6,10 @@
 new(Request, Error)->
     instance(Request, Error).
 new(Request)->
-    Err = fun(Code, Reason, Class)-> 
+    Err = fun(Code, Reason)-> 
                   {Code, 
                    [{<<"Content-Type">>,<<"text/plain; charset=utf-8">>}], 
-                   mochifmt:format("{0} ({1}): {2}", [Code, Class, Reason])}
+                   mochifmt:format("{0} ({1}): {2}", [Code, Reason])}
           end,
     instance(Request, Err).
 
@@ -19,14 +19,14 @@ roll(Args, Chain)->
         do(Args, Chain)
     catch
         throw:{Code, Reason} when is_integer(Code)->
-            send_error(Code, Reason, throw);
+            send_error(Code, Reason);
         throw:Reason -> 
-            send_error(500, Reason, throw);
+            send_error(500, Reason);
         exit:Reason -> 
-            send_error(500, Reason, 'EXIT');
+            send_error(500, Reason);
         error:Reason->
             send_error(500, 
-                {Reason,erlang:get_stacktrace()}, error)
+                {Reason,erlang:get_stacktrace()})
     end.
 
 do(Args, [])->
@@ -35,7 +35,7 @@ do(Args, [])->
             finish;
         NonClosed -> 
             % Some wrong here
-            send_error(500, {"Non ended chain", NonClosed}, "Error")
+            send_error(500, {"Non ended chain", NonClosed})
     end;
 
 do(Args, [Current|Rest])->
@@ -45,7 +45,7 @@ do(Args, [Current|Rest])->
         Ret -> do(Ret, Rest)
     end.
 
-send_error(Code, Reason, Class)->
-    error_logger:error_report(["Roller flow error", {class, Class},
+send_error(Code, Reason)->
+    error_logger:error_report(["Roller flow error", 
                                {code, Code}, {reason, Reason}]),
-    Request:respond(Error(Code, Reason, Class)).
+    Request:respond(Error(Code, Reason)).
