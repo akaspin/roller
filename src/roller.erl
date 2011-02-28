@@ -9,8 +9,7 @@ new(Request)->
     Err = fun(Code, Reason, Class)-> 
                   {Code, 
                    [{<<"Content-Type">>,<<"text/plain; charset=utf-8">>}], 
-                   mochifmt:format(
-                    "{0} ({1}): {2}", [Code, Class, Reason])}
+                   mochifmt:format("{0} ({1}): {2}", [Code, Class, Reason])}
           end,
     instance(Request, Err).
 
@@ -32,8 +31,8 @@ roll(Args, Chain)->
 
 do(Args, [])->
     case Args of
-        ok -> 
-            ok;
+        finish -> 
+            finish;
         NonClosed -> 
             % Some wrong here
             send_error(500, {"Non ended chain", NonClosed}, "Error")
@@ -42,7 +41,7 @@ do(Args, [])->
 do(Args, [Current|Rest])->
     Handler = Current:new(Request),
     case Handler:do(Args) of
-        ok -> ok;
+        finish -> ok;
         Ret -> do(Ret, Rest)
     end.
 
