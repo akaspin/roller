@@ -1,26 +1,41 @@
 # roller
 
+*roller* is hot franework. It's just simple tool to control flow inside 
+[mochiweb](https://github.com/mochi/mochiweb) request.
+
+## Design
+
+*roller* is based on ideas of [kaph](https://github.com/akaspin/kaph). Request 
+divides into separate operations. 
+
 first.erl
     
     -module(first, [Request]).
     -export([do/1]).
     
-    do(arg)->
-        Data = "SomeData",
-        Data.
+    do(["one"])->
+        "URL One";
+    do(["two"])->
+        "URL Two";
+    do(_)->
+        "404".
         
 second.erl
 
     -module(second, [Request]).
     -export([do/1]).
-    do(Data)->
+    
+    do({ok, Data})->
         Request:respond({200, [], Data}),
-        ok.
+        finish.
         
 roll.erl
 
     ...
-    % in loop fun...
+    % in mochiweb loop fun...
     Roller = roller:new(Request),
-    Roller:roll("Arg", [first, second]).
+    Roller:roll(string:tokens(Request:get(path), "/"), 
+                [first, second]).
     ...
+
+Each operation is parameterized module that contains a clause `do/1`. 
