@@ -3,8 +3,11 @@
 -export([new/1, new/2]).
 -export([roll/2]).
 
+%% @doc Constructor 
 new(Request, Error)->
     instance(Request, Error).
+
+%% @doc Constructor 
 new(Request)->
     Err = fun(Code, Reason)-> 
                   {Code, 
@@ -13,6 +16,7 @@ new(Request)->
           end,
     instance(Request, Err).
 
+%% @doc Process request chain 
 -spec roll(any(), [atom()]) -> ok.
 roll(Args, Chain)->
     try
