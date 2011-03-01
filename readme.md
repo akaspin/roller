@@ -1,6 +1,6 @@
 # roller
 
-*roller* is hot franework. It's just simple tool to control flow inside 
+*roller* is hot framework. It's just simple tool to control flow inside 
 [mochiweb](https://github.com/mochi/mochiweb) request.
 
 ## Design
@@ -47,7 +47,7 @@ of the `do/1` transferred between the following operation. For greater
 convenience when writing modules of operations you can use `roller_op` 
 behaviour.
 
-    -spec do(any()) -> any() | finish.
+    spec do(any()) -> any() | finish.
 
 If operation returns `finish` - request processing stops. All errors will be 
 hanled, logged and, if possible, sent to the client. 
