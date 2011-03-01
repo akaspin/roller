@@ -11,6 +11,7 @@ divides into chain of separate operations.
 first.erl:
     
     -module(first, [Request]).
+    -behaviour(roller_op).
     -export([do/1]).
     
     do(["one"])->
@@ -23,6 +24,7 @@ first.erl:
 second.erl:
 
     -module(second, [Request]).
+    -behaviour(roller_op).
     -export([do/1]).
     
     do({ok, Data})->
@@ -41,11 +43,13 @@ roll.erl:
     ...
 
 Each operation is parameterized module that contains a clause `do/1`. Result 
-of the `do/1` transferred between the following operation. If operation 
-returns `finish` - request processing stops. All errors will be hanled, logged 
-and, if possible, sent to the client.
+of the `do/1` transferred between the following operation. You can use 
+`roller_op` behaviour.
 
     -spec do(any()) -> any() | finish.
+
+If operation returns `finish` - request processing stops. All errors will be 
+hanled, logged and, if possible, sent to the client. 
 
 Constructor of roller `roller:new/1` takes one argument - `mochiweb_request` 
 instance. Function `roll/2` of instance of `roller` takes two arguments. First 
@@ -90,12 +94,12 @@ second parameter as `fun/2` that generates error message.
 This `fun/2` must return tuple that is used at parameter of non-chunked 
 `mochiweb_request:respond/1`.
 
-## Why ...
+## 
 
-### ... use parametrized modules?
+## Why use parametrized modules?
 
 The reason is speed. Implementation with parametrized modules is faster by 
-10% than usual approach.
+10% than usual approach. I don't know why.
 
 
     
