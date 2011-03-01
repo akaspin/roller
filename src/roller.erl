@@ -12,7 +12,7 @@ new(Request)->
     Err = fun(Code, Reason)-> 
                   {Code, 
                    [{<<"Content-Type">>,<<"text/plain; charset=utf-8">>}], 
-                   mochifmt:format("{0} : {2}", [Code, Reason])}
+                   mochifmt:format("{0} : {1}", [Code, Reason])}
           end,
     instance(Request, Err).
 
