@@ -43,8 +43,9 @@ roll.erl:
     ...
 
 Each operation is parameterized module that contains a clause `do/1`. Result 
-of the `do/1` transferred between the following operation. You can use 
-`roller_op` behaviour.
+of the `do/1` transferred between the following operation. For greater 
+convenience when writing modules of operations you can use `roller_op` 
+behaviour.
 
     -spec do(any()) -> any() | finish.
 
