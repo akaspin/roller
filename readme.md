@@ -95,8 +95,6 @@ second parameter as `fun/2` that generates error message.
 This `fun/2` must return tuple that is used at parameter of non-chunked 
 `mochiweb_request:respond/1`.
 
-## 
-
 ## Why use parametrized modules?
 
 The reason is speed. Implementation with parametrized modules is faster by 
