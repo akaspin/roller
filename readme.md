@@ -84,7 +84,7 @@ second parameter as `fun/2` that generates error message.
     spec new(MochiWebRequest, ErrFun::err_fun) -> RollerInstance.
     
     Roller = roller:new(Request, fun(Code, Reason)-> 
-                {Code, [], mochifmt:format("{0} ({1}): {2}", [Code, Reason])}
+                {Code, [], mochifmt:format("{0} : {1}", [Code, Reason])}
             end).
 
 This `fun/2` must return tuple that is used at parameter of non-chunked 
