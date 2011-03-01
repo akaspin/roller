@@ -55,7 +55,7 @@ which denotes the operation module in the chain.
     spec new(MochiWebRequest) -> RollerInstance.
     spec roll(any(), [atom()]) - ok.
 
-## Error handling
+### Error handling
 
 As written earlier, *roller* handles any exceptions within operations. If you 
 need to throw your exception, do it in manner `throw({integer(), any()})`. 
@@ -66,14 +66,14 @@ First term of the tuple is HTTP code. Second is reason.
 All other exceptions will be handled as `{500, any()}`. Where `500` corresponds 
 to the HTTP `Internal server error`. Second term in tuple is exception data.
 
-## Finish him!
+### Finish him!
 
 If none of the operations in the chain has not returned "finish", the "roller" 
 will throw an exception `{500, {"Non ended chain", any()}}`. Where the second 
 term of the tuple containing the exception data is the data returned by the 
 last function `do/1` in the chain.
 
-## Custom error report
+### Custom error report
 
 By default, error messages are quite informative, but not very aesthetic. 
 You can fix this by using another constructor `roller:new/2`, specifying the 
@@ -88,7 +88,14 @@ second parameter as `fun/2` that generates error message.
             end).
 
 This `fun/2` must return tuple that is used at parameter of non-chunked 
-`mochiweb_request:respond/1`. 
+`mochiweb_request:respond/1`.
+
+## Why ...
+
+### ... use parametrized modules?
+
+The reason is speed. Implementation with parametrized modules is faster by 
+10% than usual approach.
 
 
     

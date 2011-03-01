@@ -1,5 +1,5 @@
 -module(roller_respond, [Request]).
-
+-behaviour(roller_op).
 -export([do/1]).
 
 % @doc Send response or non-modified.
