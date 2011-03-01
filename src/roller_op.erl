@@ -3,4 +3,6 @@
 -export([behaviour_info/1]).
 
 behaviour_info(callbacks)->
-    [{new, 1},{do, 1}].
+    [{new, 1},{do, 1}];
+behaviour_info(_Other) -> 
+    undefined. 
