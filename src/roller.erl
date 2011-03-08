@@ -1,20 +1,20 @@
--module(roller, [Request, Error]).
+-module(roller, [Slug, Request, Error]).
 
--export([new/1, new/2]).
+-export([new/2, new/3]).
 -export([roll/2]).
 
 %% @doc Constructor 
-new(Request, Error)->
-    instance(Request, Error).
+new(Slug, Request, Error)->
+    instance(Slug, Request, Error).
 
 %% @doc Constructor 
-new(Request)->
+new(Slug, Request)->
     Err = fun(Code, Reason)-> 
                   {Code, 
                    [{<<"Content-Type">>,<<"text/plain; charset=utf-8">>}], 
                    mochifmt:format("{0} : {1}", [Code, Reason])}
           end,
-    instance(Request, Err).
+    instance(Slug, Request, Err).
 
 %% @doc Process request chain 
 -spec roll(any(), [atom()]) -> ok.
@@ -44,7 +44,7 @@ do(Args, [])->
 
 do(Args, [Current|Rest])->
     Handler = Current:new(Request),
-    case Handler:do(Args) of
+    case Handler:do(Slug, Args) of
         finish -> ok;
         Ret -> do(Ret, Rest)
     end.
