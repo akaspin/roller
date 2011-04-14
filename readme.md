@@ -1,9 +1,7 @@
 # roller
 
 *roller* is hot framework. It's just simple tool to control flow. I'm using 
-*roller* for my web projects.
-
-## Design
+*roller* for my web projects. 
 
 *roller* is based on ideas of [kaph](https://github.com/akaspin/kaph). But 
 instead *kaph*, *roller* not bound to any framework. With roller flow divides 
@@ -102,4 +100,19 @@ op_respond.erl
     op({Request}, {ok, Data}) ->
         Request:respond({200, [], Data}),
         finish.
+
+As we see, now request "controllers" divided into small "ops". And they can be 
+combined. 
+
+    -type err_fun() :: fun((Code::integer(), Reason::any()) -> any()).
+    -spec roller:new(Slug::any(), 
+                     Error::err_fun()) -> {roller, any(), err_fun()}.
+    -spec roll(any(), [atom()]) -> ok.
+    
+`roller:new` fun takes two arguments. First is any data what will be sent to 
+each `<operation>:do` function. Second is error handling function which in 
+turn takes error code and reason.
+
+
+
 

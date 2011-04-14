@@ -3,7 +3,10 @@
 -export([new/1, new/2]).
 -export([roll/2]).
 
+-type err_fun() :: fun((Code::integer(), Reason::any()) -> any()).
+
 %% @doc Constructor 
+-spec new(Slug::any(), Error::err_fun()) -> {roller, any(), err_fun()}.
 new(Slug, Error)->
     instance(Slug, Error).
 
