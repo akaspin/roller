@@ -20,22 +20,22 @@ new(Slug)->
     instance(Slug, Err).
 
 %% @doc Process request chain 
--spec roll(any(), [atom()]) -> ok.
+-spec roll(Args::any(), Chain::[atom()]) -> ok.
 roll(Args, Chain)->
     try
         do(Args, Chain)
     catch
         throw:{Code, Reason} when is_integer(Code)->
-            send_error(Code, Reason);
+            Error(Code, Reason);
         throw:Reason -> 
-            send_error(500, Reason);
+            Error(500, Reason);
         exit:Reason -> 
-            send_error(500, Reason);
+            Error(500, Reason);
         error:Reason->
-            send_error(500, 
-                {Reason,erlang:get_stacktrace()})
+            Error(500, {Reason, erlang:get_stacktrace()})
     end.
 
+%% @doc End of chain 
 do(Args, [])->
     case Args of
         finish -> 
@@ -45,11 +45,10 @@ do(Args, [])->
             throw({500, {"Non ended chain", NonClosed}})
     end;
 
+%% @doc Execute chain op 
 do(Args, [Current|Rest])->
     case Current:do(Slug, Args) of
         finish -> ok;
         Ret -> do(Ret, Rest)
     end.
 
-send_error(Code, Reason)->
-    Error(Code, Reason).

@@ -97,6 +97,7 @@ op_respond.erl
     -module(op_backend).
     -export([do/2]).
     
+    %% @doc Sends data and finish chain.
     op({Request}, {ok, Data}) ->
         Request:respond({200, [], Data}),
         finish.
@@ -104,15 +105,31 @@ op_respond.erl
 As we see, now request "controllers" divided into small "ops". And they can be 
 combined. 
 
-    -type err_fun() :: fun((Code::integer(), Reason::any()) -> any()).
+    -type roller:err_fun() :: fun((Code::integer(), Reason::any()) -> any()).
+    
     -spec roller:new(Slug::any(), 
                      Error::err_fun()) -> {roller, any(), err_fun()}.
-    -spec roll(any(), [atom()]) -> ok.
+    -spec roller:roll(Args::any(), Chain::[atom()]) -> ok.
     
 `roller:new` fun takes two arguments. First is any data what will be sent to 
 each `<operation>:do` function. Second is error handling function which in 
 turn takes error code and reason.
 
+`roller:roll` executes operation chain and handling any errors. It takes any 
+data in first parameter - it just be sent to first operation in chain. Second 
+parameter is list of chain modules. 
 
+    -spec do(Slug::any(), PrevResult::any()) -> any().
+    
+Operation module must contain `do/2` clause. First parameter is any data what 
+you put in `roller:new` `Slug`. Second parameter is result of previous 
+operation in chain or `roller:roll` `Args`.
 
+At least one `do/2` fun in chain must return `finish`. If this does not 
+happen, chain will ends with error "Non ended chain".
+
+## Error handling
+
+As I wrote above, *roller* handles any errors in chain. All errors goes to 
+error handler function that takes two arguments: error code and reason.
 
