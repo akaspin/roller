@@ -6,10 +6,8 @@
 ## Design
 
 *roller* is based on ideas of [kaph](https://github.com/akaspin/kaph). But 
-instead *kaph*, *roller* not bound to any framework.
-
-With roller flow divides to chain of operations. Each operation takes 
-result of previous.
+instead *kaph*, *roller* not bound to any framework. With roller flow divides 
+to chain of operations. Each operation takes result of previous.
  
 ## Usage
 
