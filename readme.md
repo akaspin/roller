@@ -31,7 +31,7 @@ Inside mochiweb loop module...
     
     accept_request(Request) ->
         Roller = roller:new({Request, Request:get(method)}, 
-                            fun(Code, Reason) ->
+                            fun(_Class, Code, Reason) ->
                                     handle_error(Request, Code, Reason)
                             end),
         case string:tokens(Request:get(path), "/") of

@@ -3,7 +3,10 @@
 -export([new/1, new/2]).
 -export([roll/2]).
 
--type err_fun() :: fun((Code::integer(), Reason::any()) -> any()).
+-type err_fun() :: fun(
+    (Class :: throw | exit | error, 
+     Code :: integer(),
+     Reason :: any()) -> any()).    % Error handling function. 
 
 %% @doc Constructor 
 -spec new(Slug::any(), Error::err_fun()) -> {roller, any(), err_fun()}.
@@ -12,7 +15,7 @@ new(Slug, Error)->
 
 %% @doc Constructor 
 new(Slug)->
-    Err = fun(Code, Reason)-> 
+    Err = fun(_Class, Code, Reason)-> 
                   error_logger:error_report(
                     ["Roller flow error", 
                      {code, Code}, {reason, Reason}])
@@ -26,13 +29,11 @@ roll(Args, Chain)->
         do(Args, Chain)
     catch
         throw:{Code, Reason} when is_integer(Code)->
-            Error(Code, Reason);
-        throw:Reason -> 
-            Error(500, Reason);
-        exit:Reason -> 
-            Error(500, Reason);
+            Error(throw, Code, Reason);
         error:Reason->
-            Error(500, {Reason, erlang:get_stacktrace()})
+            Error(error, 500, {Reason, erlang:get_stacktrace()});
+        Class:Reason -> 
+            Error(Class, 500, Reason)
     end.
 
 %% @doc End of chain 
