@@ -3,6 +3,13 @@
 -export([new/1, new/2]).
 -export([roll/2]).
 
+-export([behaviour_info/1]).
+
+behaviour_info(callbacks)->
+    [{do, 2}];
+behaviour_info(_Other) -> 
+    undefined. 
+
 -type err_fun() :: fun(
     (Class :: throw | exit | error, 
      Code :: integer(),
