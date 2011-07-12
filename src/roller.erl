@@ -5,15 +5,15 @@
 
 -export([behaviour_info/1]).
 
-behaviour_info(callbacks)->
-    [{do, 2}];
-behaviour_info(_Other) -> 
-    undefined. 
-
 -type err_fun() :: fun(
     (Class :: throw | exit | error, 
      Code :: integer(),
      Reason :: any()) -> any()).    % Error handling function. 
+
+behaviour_info(callbacks)->
+    [{do, 2}];
+behaviour_info(_Other) -> 
+    undefined. 
 
 %% @doc Constructor 
 -spec new(Slug::any(), Error::err_fun()) -> {roller, any(), err_fun()}.
