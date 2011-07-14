@@ -1,28 +1,29 @@
--module(roller, [Slug, Error]).
+-module(roller, [Slug, ErrMod]).
 
 -export([new/1, new/2]).
 -export([roll/2]).
+-export([oops/2]).
 
--export_type([err_fun/0]).
+-export_type([roller/0, err_mod/0]).
 
--type err_fun() :: fun(
-    (Class :: throw | exit | error, 
-     Code :: integer(),
-     Reason :: any()) -> any()).    % Error handling function. 
+-type roller() :: {roller, any(), err_mod()}.
+% Roller instance.
+
+-type err_mod() :: module().
+% Error handling callback module.
 
 %% @doc Constructor 
--spec new(Slug::any(), Error::err_fun()) -> {roller, any(), err_fun()}.
-new(Slug, Error)->
-    instance(Slug, Error).
+-spec new(Slug, ErrMod) -> Instance when
+        Slug :: any(),
+        ErrMod :: err_mod(),
+        Instance :: roller().
+
+new(Slug, ErrMod)->
+    instance(Slug, ErrMod).
 
 %% @doc Constructor 
 new(Slug)->
-    Err = fun(_Class, Code, Reason)-> 
-                  error_logger:error_report(
-                    ["Roller flow error", 
-                     {code, Code}, {reason, Reason}])
-          end,
-    instance(Slug, Err).
+    instance(Slug, roller).
 
 %% @doc Process request chain 
 -spec roll(Args::any(), Chain::[atom()]) -> ok.
@@ -30,12 +31,8 @@ roll(Args, Chain)->
     try
         do(Args, Chain)
     catch
-        throw:{Code, Reason} when is_integer(Code)->
-            Error(throw, Code, Reason);
-        error:Reason->
-            Error(error, 500, {Reason, erlang:get_stacktrace()});
         Class:Reason -> 
-            Error(Class, 500, Reason)
+            ErrMod:oops(Class, Reason)
     end.
 
 %% @doc End of chain 
@@ -54,4 +51,12 @@ do(Args, [Current|Rest])->
         finish -> ok;
         Ret -> do(Ret, Rest)
     end.
+
+
+%% @doc Standart error handling function.
+-spec oops(Class, Reason) -> none() when 
+        Class :: throw | error | exit,
+        Reason :: any().
+oops(Class, Reason) ->
+    error_logger:error_report(["Roller flow error", {Class, Reason}]).
 
