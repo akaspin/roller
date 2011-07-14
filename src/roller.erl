@@ -32,7 +32,7 @@ roll(Args, Chain)->
         do(Args, Chain)
     catch
         Class:Reason -> 
-            ErrMod:oops(Class, Reason)
+            ErrMod:oops(Slug, Class, Reason)
     end.
 
 %% @doc End of chain 
