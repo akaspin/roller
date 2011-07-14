@@ -2,7 +2,7 @@
 
 -export([new/1, new/2]).
 -export([roll/2]).
--export([oops/2]).
+-export([oops/3]).
 
 -export_type([roller/0, err_mod/0]).
 
@@ -54,9 +54,10 @@ do(Args, [Current|Rest])->
 
 
 %% @doc Standart error handling function.
--spec oops(Class, Reason) -> none() when 
+-spec oops(Slug, Class, Reason) -> none() when
+        Slug :: any(),
         Class :: throw | error | exit,
         Reason :: any().
-oops(Class, Reason) ->
+oops(_Slug, Class, Reason) ->
     error_logger:error_report(["Roller flow error", {Class, Reason}]).
 
